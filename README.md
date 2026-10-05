@@ -44,3 +44,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\RunRegressionTests.ps1
 感谢 **OpenAI GPT** 与 **DeepSeek** 在开发、排查问题和文档整理中的帮助，详见 [致谢](ACKNOWLEDGEMENTS.md)。本项目为个人工具，与游戏厂商、联想或 AI 模型提供方无官方关联。
 
 真实配置、密钥、日志和截图请留在本机，详见 [隐私说明](PRIVACY.md)。首次发布为源码版本，不包含虚拟环境、游戏文件、驱动或预编译程序。
+
+## 下载可执行版本
+
+从 [Releases](https://github.com/xzk09164418-droid/thinkbook16plus-fan-control/releases) 下载 Windows x64 ZIP 和 SHA256SUMS.txt，解压后先阅读 QUICKSTART.md。无需自行编译；程序未签名，不附带驱动。

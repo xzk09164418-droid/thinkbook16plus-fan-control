@@ -1,0 +1,48 @@
+name: Windows release
+on:
+  push:
+    branches: [main]
+    paths: ['packaging/**', '.github/workflows/release.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: windows-release
+  cancel-in-progress: false
+jobs:
+  release:
+    runs-on: windows-2022
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Build and validate package
+        shell: powershell
+        run: ./packaging/BuildRelease.ps1
+      - name: Publish release with verified assets
+        shell: powershell
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_COMMIT: ${{ github.sha }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $version = (Get-Content packaging/VERSION -Raw).Trim()
+          $existing = gh release view $version --json isDraft 2>$null
+          if ($LASTEXITCODE -eq 0) {
+            if (-not ($existing | ConvertFrom-Json).isDraft) {
+              throw "Release $version already published; refusing to replace its assets."
+            }
+          } else {
+            gh release create $version --draft --target $env:RELEASE_COMMIT --title "$version - Windows x64" --notes-file packaging/RELEASE_NOTES.md
+            if ($LASTEXITCODE -ne 0) { throw 'Creating draft release failed' }
+          }
+          $assets = @(Get-ChildItem dist -File | Where-Object { $_.Extension -eq '.zip' -or $_.Name -eq 'SHA256SUMS.txt' } | ForEach-Object FullName)
+          if ($assets.Count -ne 2) { throw 'Expected ZIP and SHA256SUMS.txt' }
+          gh release upload $version @assets --clobber
+          if ($LASTEXITCODE -ne 0) { throw 'Asset upload failed; release remains a draft' }
+          gh release edit $version --draft=false --latest
+          if ($LASTEXITCODE -ne 0) { throw 'Publishing release failed' }

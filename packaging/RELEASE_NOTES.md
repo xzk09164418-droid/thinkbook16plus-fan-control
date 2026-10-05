@@ -1,0 +1,14 @@
+# v0.1.0 · Windows x64
+
+首个可执行文件版本，由 GitHub Actions 构建；源码提交见包内 BUILD-INFO.txt。
+
+下载 `thinkbook16plus-fan-control-v0.1.0-windows-x64.zip`，完整解压后运行 `FanCurve.exe`。普通启动只监控，确认机型、温度和风扇反馈后再启用曲线；退出使用托盘“恢复自动并退出”。
+
+- 适用于项目所针对的 ThinkBook 16+ 2024 硬件接口，其他机型/BIOS 需要自行验证。
+- 需要 Windows x64、.NET Framework 4.x，以及可用的 NVIDIA 温度读取工具。
+- 包含九节点曲线、平滑接管、温度保护、托盘及看门狗恢复。
+- 包内无维护者配置、日志或恢复标记；首次保存时生成本机配置。
+- 编译及无硬件写入的回归测试通过。未执行实际调速或重启验证。
+- 程序未进行代码签名。不附带驱动或系统运行时。
+
+SHA-256 见附件 `SHA256SUMS.txt`。原创部分采用 MIT；感谢 GPT 与 DeepSeek。
