@@ -8,7 +8,7 @@ permissions:
   contents: read
 concurrency:
   group: windows-release
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   release:
     runs-on: windows-2022
@@ -29,6 +29,11 @@ jobs:
           GH_REPO: ${{ github.repository }}
           RELEASE_COMMIT: ${{ github.sha }}
         run: |
+          trap {
+            $detail = ($_ | Out-String).Replace('%','%25').Replace("`r",'%0D').Replace("`n",'%0A')
+            Write-Output "::error title=Release publication diagnostics::$detail"
+            exit 1
+          }
           $ErrorActionPreference = 'Stop'
           $version = (Get-Content packaging/VERSION -Raw).Trim()
           $releases = gh release list --limit 100 --json tagName,isDraft
