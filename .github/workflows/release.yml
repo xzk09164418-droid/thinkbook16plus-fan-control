@@ -31,9 +31,11 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           $version = (Get-Content packaging/VERSION -Raw).Trim()
-          $existing = gh release view $version --json isDraft 2>$null
-          if ($LASTEXITCODE -eq 0) {
-            if (-not ($existing | ConvertFrom-Json).isDraft) {
+          $releases = gh release list --limit 100 --json tagName,isDraft
+          if ($LASTEXITCODE -ne 0) { throw "Cannot list existing releases" }
+          $existing = @(($releases | ConvertFrom-Json) | Where-Object tagName -eq $version)
+          if ($existing.Count -gt 0) {
+            if (-not $existing[0].isDraft) {
               throw "Release $version already published; refusing to replace its assets."
             }
           } else {
